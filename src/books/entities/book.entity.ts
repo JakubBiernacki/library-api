@@ -5,12 +5,18 @@ export class Book {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 255 })
-  category: string;
-
-  @Column({ length: 255 })
+  @Column()
   title: string;
 
-  @Column({ length: 255 })
+  @Column('text', { array: true })
+  category: string[];
+
+  @Column()
   author: string;
+
+  @Column()
+  cover: string;
+
+  @Column({ type: 'date' })
+  pub_date: string;
 }
