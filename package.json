@@ -13,12 +13,12 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+
+    "typeorm": "node --require ts-node/register ./node_modules/typeorm/cli.js",
+    "typeorm:show": "npm run typeorm -- migration:show",
+    "typeorm:generate": "npm run typeorm -- migration:generate -n migration",
+    "typeorm:migrate": "npm run typeorm -- migration:run",
+    "typeorm:drop": "npm run typeorm schema:drop"
   },
   "dependencies": {
     "@nestjs/common": "^7.6.15",

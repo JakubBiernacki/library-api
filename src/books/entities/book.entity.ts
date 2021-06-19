@@ -8,7 +8,7 @@ export class Book {
   @Column()
   title: string;
 
-  @Column('text', { array: true })
+  @Column('varchar', { array: true })
   category: string[];
 
   @Column()
