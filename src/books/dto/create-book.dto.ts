@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsString, MinLength, IsDateString } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  MinLength,
+  IsDateString,
+  IsOptional,
+} from 'class-validator';
 
 export class CreateBookDto {
   @IsNotEmpty()
@@ -9,12 +15,11 @@ export class CreateBookDto {
   @IsString({ each: true })
   category: string[];
 
-  @IsNotEmpty()
-  author: string;
+  author?: number;
 
-  @IsString()
   cover?: string;
 
   @IsDateString()
+  @IsOptional()
   pub_date?: string;
 }

@@ -15,11 +15,6 @@ import { UpdateBookDto } from './dto/update-book.dto';
 export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
-  @Post()
-  create(@Body() createBookDto: CreateBookDto) {
-    return this.booksService.create(createBookDto);
-  }
-
   @Get()
   findAll() {
     return this.booksService.findAll();
@@ -28,6 +23,11 @@ export class BooksController {
   @Get(':id')
   findOne(@Param('id') id: number) {
     return this.booksService.findOne(id);
+  }
+
+  @Post()
+  create(@Body() createBookDto: CreateBookDto) {
+    return this.booksService.create(createBookDto);
   }
 
   @Patch(':id')

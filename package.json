@@ -13,7 +13,6 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-
     "typeorm": "node --require ts-node/register ./node_modules/typeorm/cli.js",
     "typeorm:show": "npm run typeorm -- migration:show",
     "typeorm:generate": "npm run typeorm -- migration:generate -n migration",
@@ -41,6 +40,7 @@
     "@nestjs/testing": "^7.6.15",
     "@types/express": "^4.17.11",
     "@types/jest": "^26.0.22",
+    "@types/multer": "^1.4.6",
     "@types/node": "^14.14.36",
     "@types/supertest": "^2.0.10",
     "@typescript-eslint/eslint-plugin": "^4.19.0",

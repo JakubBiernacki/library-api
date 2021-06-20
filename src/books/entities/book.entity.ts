@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Author } from 'src/authors/entities/author.entity';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 
 @Entity()
 export class Book {
@@ -11,12 +12,12 @@ export class Book {
   @Column('varchar', { array: true })
   category: string[];
 
-  @Column()
-  author: string;
-
-  @Column()
+  @Column({ nullable: true })
   cover: string;
 
-  @Column({ type: 'date' })
+  @Column({ type: 'date', nullable: true })
   pub_date: string;
+
+  @ManyToOne(() => Author, (author) => author.books, { onDelete: 'CASCADE' })
+  author: Author;
 }
