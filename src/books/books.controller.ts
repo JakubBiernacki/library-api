@@ -6,10 +6,15 @@ import {
   Patch,
   Param,
   Delete,
+  UseInterceptors,
+  UploadedFile,
+  Res,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
+import { coverStorage } from './utils/books.storage';
 
 @Controller('books')
 export class BooksController {
@@ -38,5 +43,16 @@ export class BooksController {
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.booksService.remove(id);
+  }
+
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file', coverStorage))
+  uploadCover(@UploadedFile() file: Express.Multer.File) {
+    return { coverPath: '/books/cover_img/' + file.filename };
+  }
+
+  @Get('cover_img/:name')
+  getCover(@Param('name') coverName, @Res() res) {
+    return res.sendFile(process.cwd() + '/upload/booksCover/' + coverName);
   }
 }

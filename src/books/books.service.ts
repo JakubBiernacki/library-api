@@ -16,7 +16,7 @@ export class BooksService {
   ) {}
 
   async findAll(): Promise<Book[]> {
-    return await this.bookRepository.find({ relations: ['author'] });
+    return this.bookRepository.find({ relations: ['author'] });
   }
 
   findOne(id: number): Promise<Book> {
@@ -24,7 +24,7 @@ export class BooksService {
   }
 
   async create(createBookDto: CreateBookDto): Promise<void> {
-    const author = await this.authorsService.findOne(createBookDto.author);
+    const author = await this.authorsService.findOne(createBookDto?.author);
 
     const newBook = this.bookRepository.create({
       ...createBookDto,
@@ -33,13 +33,14 @@ export class BooksService {
     await this.bookRepository.save(newBook);
   }
 
-  async update(id: number, updateBookDto: UpdateBookDto) {
+  async update(id: number, updateBookDto: UpdateBookDto): Promise<any> {
     const author = await this.authorsService.findOne(updateBookDto?.author);
 
     return this.bookRepository.update(id, { ...updateBookDto, author });
   }
 
   async remove(id: number): Promise<void> {
-    await this.bookRepository.delete(id);
+    const book = await this.findOne(id);
+    await this.bookRepository.remove(book);
   }
 }
