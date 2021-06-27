@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserDto } from './dto/create-user.dto';
@@ -17,27 +17,50 @@ export class UsersService {
     return this.userRepository.save(newUser);
   }
 
-  findOne(id: number) {
-    return this.userRepository.findOne(id);
+  async findOne(id: number) {
+    const user = await this.userRepository.findOne(id);
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    return user;
   }
 
   findAll() {
     return this.userRepository.find();
   }
 
-  findByUsernameWithPassword(username: string) {
-    return this.userRepository
+  async findByUsernameWithPassword(username: string) {
+    const user = await this.userRepository
       .createQueryBuilder('user')
       .where('user.username = :username', { username })
       .addSelect('user.password')
       .getOne();
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    return user;
   }
 
-  update(id: number, updateUser: UpdateUserDto) {
-    return this.userRepository.update(id, { ...updateUser });
+  async update(id: number, updateUser: UpdateUserDto) {
+    const user = await this.userRepository.findOne(id);
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    return this.userRepository.update(user, { ...updateUser });
   }
 
-  remove(id: number) {
+  async remove(id: number) {
+    const user = await this.userRepository.findOne(id);
+
+    if (!user) {
+      throw new NotFoundException();
+    }
     return this.userRepository.delete(id);
   }
 }

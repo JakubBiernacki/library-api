@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Book } from 'src/books/entities/book.entity';
 import { Repository } from 'typeorm';
@@ -22,8 +22,14 @@ export class AuthorsService {
     return this.authorRepository.find();
   }
 
-  findOne(id: number): Promise<Author | undefined> {
-    return this.authorRepository.findOne({ id });
+  async findOne(id: number): Promise<Author | undefined> {
+    const author = await this.authorRepository.findOne(id, {
+      relations: ['books'],
+    });
+    if (!author) {
+      throw new NotFoundException();
+    }
+    return author;
   }
 
   async findOneAndGetBooks(id: number): Promise<Book[]> {
@@ -33,8 +39,12 @@ export class AuthorsService {
     return author.books;
   }
 
-  update(id: number, updateAuthorDto: UpdateAuthorDto): Promise<any> {
-    return this.authorRepository.update(id, updateAuthorDto);
+  async update(id: number, updateAuthorDto: UpdateAuthorDto): Promise<any> {
+    const author = await this.authorRepository.findOne(id);
+    if (!author) {
+      throw new NotFoundException();
+    }
+    return this.authorRepository.update(author, updateAuthorDto);
   }
 
   remove(id: number): Promise<any> {

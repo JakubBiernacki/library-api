@@ -9,6 +9,8 @@ import {
   UseInterceptors,
   UploadedFile,
   Res,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { BooksService } from './books.service';
@@ -26,7 +28,7 @@ export class BooksController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number) {
+  async findOne(@Param('id') id: number) {
     return this.booksService.findOne(id);
   }
 
