@@ -5,6 +5,7 @@ import {
   IsDateString,
   IsOptional,
 } from 'class-validator';
+import { Author } from 'src/authors/entities/author.entity';
 
 export class CreateBookDto {
   @IsNotEmpty()
@@ -15,8 +16,10 @@ export class CreateBookDto {
   @IsString({ each: true })
   category: string[];
 
-  author?: number;
+  @IsOptional()
+  author?: Author;
 
+  @IsOptional()
   cover?: string;
 
   @IsDateString()

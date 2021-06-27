@@ -9,8 +9,6 @@ import {
   UseInterceptors,
   UploadedFile,
   Res,
-  HttpException,
-  HttpStatus,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { BooksService } from './books.service';
@@ -54,7 +52,7 @@ export class BooksController {
   }
 
   @Get('cover_img/:name')
-  getCover(@Param('name') coverName, @Res() res) {
+  getCover(@Param('name') coverName: string, @Res() res) {
     return res.sendFile(process.cwd() + '/upload/booksCover/' + coverName);
   }
 }

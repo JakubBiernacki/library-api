@@ -1,9 +1,4 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthorsService } from 'src/authors/authors.service';
 import { Repository } from 'typeorm';
@@ -24,49 +19,48 @@ export class BooksService {
   }
 
   async findOne(id: number): Promise<Book> {
-    const book = await this.bookRepository.findOne(id, {
-      relations: ['author'],
-    });
-    if (!book) {
-      throw new NotFoundException();
-    }
+    const book = await this.bookRepository
+      .findOneOrFail(id, {
+        relations: ['author'],
+      })
+      .catch(() => {
+        throw new NotFoundException();
+      });
+
     return book;
   }
 
-  async create(createBookDto: CreateBookDto): Promise<void> {
-    const author = await this.authorsService.findOne(createBookDto?.author);
-
+  async create(createBookDto: CreateBookDto): Promise<Book> {
     const newBook = this.bookRepository.create({
       ...createBookDto,
-      author,
     });
-    await this.bookRepository.save(newBook);
-  }
 
-  async update(id: number, updateBookDto: UpdateBookDto): Promise<any> {
-    const book = await this.bookRepository.findOne(id);
-
-    if (!book) {
-      throw new NotFoundException();
-    }
-
-    const author = await this.authorsService.findOne(updateBookDto?.author);
-
-    if (updateBookDto?.author && !author) {
-      throw new HttpException(
-        `author #${updateBookDto?.author} not found`,
-        HttpStatus.NOT_FOUND,
+    if (createBookDto?.author) {
+      newBook.author = await this.authorsService.findOneOrCreate(
+        createBookDto?.author,
       );
     }
 
-    return this.bookRepository.update(book, { ...updateBookDto, author });
+    return this.bookRepository.save(newBook);
+  }
+
+  async update(id: number, updateBookDto: UpdateBookDto): Promise<any> {
+    const book = await this.bookRepository.findOneOrFail(id).catch(() => {
+      throw new NotFoundException();
+    });
+
+    if (updateBookDto?.author) {
+      updateBookDto.author = await this.authorsService.findOneOrCreate(
+        updateBookDto?.author,
+      );
+    }
+
+    return this.bookRepository.update(book, { ...updateBookDto });
   }
 
   async remove(id: number): Promise<void> {
     const book = await this.findOne(id);
-    if (!book) {
-      throw new NotFoundException();
-    }
+
     await this.bookRepository.remove(book);
   }
 }

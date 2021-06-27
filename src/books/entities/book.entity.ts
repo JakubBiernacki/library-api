@@ -26,7 +26,10 @@ export class Book {
   @Column({ type: 'date', nullable: true })
   pub_date: string;
 
-  @ManyToOne(() => Author, (author) => author.books, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Author, (author) => author.books, {
+    cascade: ['insert'],
+    onDelete: 'CASCADE',
+  })
   author: Author;
 
   @BeforeRemove()
