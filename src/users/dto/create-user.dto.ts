@@ -15,3 +15,8 @@ export class UserDto {
   @MinLength(8)
   password: string;
 }
+
+export enum Role {
+  User = 'user',
+  Admin = 'admin',
+}
