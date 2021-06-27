@@ -11,10 +11,12 @@ import {
   Res,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { ImageOnly } from 'src/common/storage/image-only.storage';
+import { randomFilename } from 'src/common/storage/random-filename.storage';
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
-import { coverStorage } from './utils/books.storage';
 
 @Controller('books')
 export class BooksController {
@@ -46,13 +48,21 @@ export class BooksController {
   }
 
   @Post('upload')
-  @UseInterceptors(FileInterceptor('file', coverStorage))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: 'upload/cover_img',
+        filename: randomFilename,
+      }),
+      fileFilter: ImageOnly,
+    }),
+  )
   uploadCover(@UploadedFile() file: Express.Multer.File) {
-    return { coverPath: '/books/cover_img/' + file.filename };
+    return { ImgPath: '/books/cover_img/' + file.filename };
   }
 
   @Get('cover_img/:name')
   getCover(@Param('name') coverName: string, @Res() res) {
-    return res.sendFile(process.cwd() + '/upload/booksCover/' + coverName);
+    return res.sendFile(this.booksService.getCover(coverName));
   }
 }

@@ -5,7 +5,7 @@ import {
   IsDateString,
   IsOptional,
 } from 'class-validator';
-import { Author } from 'src/authors/entities/author.entity';
+import { Author } from 'src/modules/authors/entities/author.entity';
 
 export class CreateBookDto {
   @IsNotEmpty()

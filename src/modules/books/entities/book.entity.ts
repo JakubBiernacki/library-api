@@ -1,6 +1,6 @@
 import { rmSync } from 'fs';
 import { basename } from 'path';
-import { Author } from 'src/authors/entities/author.entity';
+import { Author } from 'src/modules/authors/entities/author.entity';
 import {
   Entity,
   Column,

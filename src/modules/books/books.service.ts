@@ -1,10 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AuthorsService } from 'src/authors/authors.service';
+import { AuthorsService } from '../authors/authors.service';
 import { Repository } from 'typeorm';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { Book } from './entities/book.entity';
+import { existsSync } from 'fs';
 
 @Injectable()
 export class BooksService {
@@ -62,5 +63,13 @@ export class BooksService {
     const book = await this.findOne(id);
 
     await this.bookRepository.remove(book);
+  }
+
+  getCover(name: string) {
+    const path = process.cwd() + '/upload/cover_img/' + name;
+    if (existsSync(path)) {
+      return path;
+    }
+    throw new NotFoundException();
   }
 }
