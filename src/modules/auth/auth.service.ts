@@ -1,19 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { UserDto } from 'src/modules/users/dto/create-user.dto';
-import { LoginUserDto } from 'src/modules/users/dto/login-user.dto';
-import { User } from 'src/modules/users/entities/user.entity';
-import { UsersService } from 'src/modules/users/users.service';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private readonly jwtService: JwtService,
-    private usersService: UsersService,
-  ) {}
+  constructor(private readonly jwtService: JwtService) {}
 
-  generateJWT(user: UserDto) {
+  generateJWT(user: User) {
     return this.jwtService.signAsync({ user });
   }
 
@@ -21,36 +15,7 @@ export class AuthService {
     return bcrypt.hash(password, 12);
   }
 
-  compatePasswords(newPassword: string, passwordHash: string) {
-    return bcrypt.compare(newPassword, passwordHash);
-  }
-
-  async login(user: LoginUserDto) {
-    const validateUser = await this.validateUser(user.username, user.password);
-
-    return this.generateJWT(validateUser);
-  }
-
-  async validateUser(username: string, password: string) {
-    const user = await this.usersService.findByUsernameWithPassword(username);
-
-    if (await this.compatePasswords(password, user.password)) {
-      delete user.password;
-      return user;
-    }
-
-    throw Error;
-  }
-
-  async register(user: UserDto): Promise<User> {
-    const hashpass = await this.hashPassword(user.password);
-    const newUser = await this.usersService.create({
-      ...user,
-      password: hashpass,
-    });
-
-    delete newUser.password;
-
-    return newUser;
+  comparePasswords(password: string, passwordHash: string) {
+    return bcrypt.compare(password, passwordHash);
   }
 }
