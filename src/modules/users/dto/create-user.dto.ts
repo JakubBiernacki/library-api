@@ -13,8 +13,3 @@ export class CreateUserDto extends LoginUserDto {
   @MinLength(8)
   password: string;
 }
-
-export enum Role {
-  User = 'user',
-  Admin = 'admin',
-}

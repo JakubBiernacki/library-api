@@ -17,36 +17,45 @@ import { randomFilename } from 'src/common/storage/random-filename.storage';
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
+import { UserRole } from '../users/enums/user-role';
+import { AllowRoles } from '../auth/decorator/roles.decorator';
+import { Public } from '../auth/decorator/public.decorator';
 
 @Controller('books')
 export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
+  @Public()
   @Get()
   findAll() {
     return this.booksService.findAll();
   }
 
+  @Public()
   @Get(':id')
   async findOne(@Param('id') id: number) {
     return this.booksService.findOne(id);
   }
 
+  @AllowRoles(UserRole.EMPLOYEE, UserRole.ADMIN)
   @Post()
   create(@Body() createBookDto: CreateBookDto) {
     return this.booksService.create(createBookDto);
   }
 
+  @AllowRoles(UserRole.EMPLOYEE, UserRole.ADMIN)
   @Patch(':id')
   update(@Param('id') id: number, @Body() updateBookDto: UpdateBookDto) {
     return this.booksService.update(id, updateBookDto);
   }
 
+  @AllowRoles(UserRole.EMPLOYEE, UserRole.ADMIN)
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.booksService.remove(id);
   }
 
+  @AllowRoles(UserRole.EMPLOYEE, UserRole.ADMIN)
   @Post('upload')
   @UseInterceptors(
     FileInterceptor('file', {
@@ -61,6 +70,7 @@ export class BooksController {
     return { ImgPath: '/books/cover_img/' + file.filename };
   }
 
+  @Public()
   @Get('cover_img/:name')
   getCover(@Param('name') coverName: string, @Res() res) {
     return res.sendFile(this.booksService.getCover(coverName));

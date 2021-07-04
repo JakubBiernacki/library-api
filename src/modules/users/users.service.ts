@@ -12,6 +12,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { AuthService } from '../auth/auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
+import { UserRole } from './enums/user-role';
 
 @Injectable()
 export class UsersService {
@@ -84,6 +85,10 @@ export class UsersService {
       throw new NotFoundException();
     }
     return this.userRepository.delete(id);
+  }
+
+  updateRoleOfUser(id: number, role: UserRole) {
+    return this.userRepository.update(id, { role });
   }
 
   private async findByUsernameWithPassword(username: string) {
