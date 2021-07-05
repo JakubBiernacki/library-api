@@ -1,6 +1,5 @@
 import {
-  HttpException,
-  HttpStatus,
+  BadRequestException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -28,27 +27,20 @@ export class AuthorsService {
   }
 
   async findOne(id: number): Promise<Author> {
-    const author = await this.authorRepository
-      .findOneOrFail(id, {
-        relations: ['books'],
-      })
-      .catch(() => {
-        throw new NotFoundException();
-      });
-
-    return author;
+    return this.authorRepository.findOneOrFail(id).catch(() => {
+      throw new NotFoundException();
+    });
   }
 
   async findOneOrCreate(authorDto: CreateAuthorDto): Promise<Author> {
     const author = await this.authorRepository.findOne({ ...authorDto });
 
-    if (author) {
-      return author;
-    }
+    if (author) return author;
+
     const newAuthor = this.authorRepository.create(authorDto);
 
     return this.authorRepository.save(newAuthor).catch((err) => {
-      throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+      throw new BadRequestException(err.message);
     });
   }
 

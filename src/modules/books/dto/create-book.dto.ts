@@ -1,9 +1,9 @@
 import {
+  IsDateString,
   IsNotEmpty,
+  IsOptional,
   IsString,
   MinLength,
-  IsDateString,
-  IsOptional,
 } from 'class-validator';
 import { Author } from 'src/modules/authors/entities/author.entity';
 

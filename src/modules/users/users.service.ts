@@ -1,8 +1,6 @@
 import {
   ConflictException,
-  HttpStatus,
   Injectable,
-  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -23,22 +21,19 @@ export class UsersService {
   ) {}
 
   async login(loginUser: LoginUserDto) {
-    const user = await this.findByUsernameWithPassword(
-      loginUser.username,
-    ).catch(() => {
-      throw new UnauthorizedException();
-    });
+    const user = await this.findByUsernameWithPassword(loginUser.username);
 
-    const compare = await this.authService.comparePasswords(
-      loginUser.password,
-      user.password,
-    );
-    delete user.password;
-    if (compare) {
-      return this.authService.generateJWT(user);
+    if (user instanceof User) {
+      const compare = await this.authService.comparePasswords(
+        loginUser.password,
+        user.password,
+      );
+      delete user.password;
+
+      if (compare) return this.authService.generateJWT(user);
     }
 
-    throw new UnauthorizedException();
+    throw new UnauthorizedException('Login failed');
   }
 
   async create(newUser: CreateUserDto): Promise<Record<string, string>> {
@@ -54,14 +49,8 @@ export class UsersService {
     return { message: `User ${user.username} has been created` };
   }
 
-  async findOne(id: number) {
-    const user = await this.userRepository.findOne(id);
-
-    if (!user) {
-      throw new NotFoundException();
-    }
-
-    return user;
+  findOne(id: number) {
+    return this.userRepository.findOne({ id });
   }
 
   findAll() {
@@ -69,21 +58,10 @@ export class UsersService {
   }
 
   async update(id: number, updateUser: UpdateUserDto) {
-    const user = await this.userRepository.findOne(id);
-
-    if (!user) {
-      throw new NotFoundException();
-    }
-
-    return this.userRepository.update(user, { ...updateUser });
+    return this.userRepository.update(id, updateUser);
   }
 
   async remove(id: number) {
-    const user = await this.userRepository.findOne(id);
-
-    if (!user) {
-      throw new NotFoundException();
-    }
     return this.userRepository.delete(id);
   }
 
@@ -92,40 +70,22 @@ export class UsersService {
   }
 
   private async findByUsernameWithPassword(username: string) {
-    const user = await this.userRepository
+    return this.userRepository
       .createQueryBuilder('user')
       .where('user.username = :username', { username })
       .addSelect('user.password')
       .getOne();
-
-    if (!user) {
-      throw new NotFoundException();
-    }
-
-    return user;
   }
 
   private async userExist(user: CreateUserDto) {
     const { username, email } = user;
     const existUsername = await this.userRepository.findOne({ username });
     const existEmail = await this.userRepository.findOne({ email });
-
     if (existUsername || existEmail) {
-      const errorObject: Record<string, any> = {
-        statusCode: HttpStatus.CONFLICT,
-        fields: {},
-        error: 'Conflict',
-      };
-
-      existUsername
-        ? (errorObject.fields.username = `User with username: ${username} already exist`)
-        : false;
-
-      existEmail
-        ? (errorObject.fields.email = `User with email: ${email} already exist`)
-        : false;
-
-      throw new ConflictException(errorObject);
+      throw new ConflictException({
+        username: existUsername?.username,
+        email: existEmail?.email,
+      });
     }
   }
 }

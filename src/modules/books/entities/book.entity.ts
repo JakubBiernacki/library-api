@@ -2,11 +2,11 @@ import { rmSync } from 'fs';
 import { basename } from 'path';
 import { Author } from 'src/modules/authors/entities/author.entity';
 import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  ManyToOne,
   BeforeRemove,
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
 @Entity()

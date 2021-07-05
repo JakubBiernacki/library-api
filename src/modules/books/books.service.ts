@@ -19,16 +19,14 @@ export class BooksService {
     return this.bookRepository.find({ relations: ['author'] });
   }
 
-  async findOne(id: number): Promise<Book> {
-    const book = await this.bookRepository
+  findOne(id: number): Promise<Book> {
+    return this.bookRepository
       .findOneOrFail(id, {
         relations: ['author'],
       })
       .catch(() => {
         throw new NotFoundException();
       });
-
-    return book;
   }
 
   async create(createBookDto: CreateBookDto): Promise<Book> {
@@ -46,9 +44,7 @@ export class BooksService {
   }
 
   async update(id: number, updateBookDto: UpdateBookDto): Promise<any> {
-    const book = await this.bookRepository.findOneOrFail(id).catch(() => {
-      throw new NotFoundException();
-    });
+    const book = await this.findOne(id);
 
     if (updateBookDto?.author) {
       updateBookDto.author = await this.authorsService.findOneOrCreate(
@@ -56,7 +52,7 @@ export class BooksService {
       );
     }
 
-    return this.bookRepository.update(book, { ...updateBookDto });
+    return this.bookRepository.update(book, updateBookDto);
   }
 
   async remove(id: number): Promise<void> {
