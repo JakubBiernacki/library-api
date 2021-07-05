@@ -8,6 +8,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Category } from '../enums/category.enum';
 
 @Entity()
 export class Book {
@@ -17,8 +18,11 @@ export class Book {
   @Column()
   title: string;
 
-  @Column('varchar', { array: true })
-  category: string[];
+  @Column('enum', { enum: Category, array: true })
+  categories: Category[];
+
+  @Column({ default: 0 })
+  page: number;
 
   @Column({ nullable: true, unique: true })
   cover: string;

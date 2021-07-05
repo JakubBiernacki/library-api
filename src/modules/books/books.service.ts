@@ -15,8 +15,12 @@ export class BooksService {
     private readonly authorsService: AuthorsService,
   ) {}
 
-  async findAll(): Promise<Book[]> {
-    return this.bookRepository.find({ relations: ['author'] });
+  findAll(offset: number, limit: number): Promise<Book[]> {
+    return this.bookRepository.find({
+      relations: ['author'],
+      skip: offset,
+      take: limit,
+    });
   }
 
   findOne(id: number): Promise<Book> {

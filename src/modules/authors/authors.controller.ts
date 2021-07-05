@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthorsService } from './authors.service';
@@ -15,6 +16,7 @@ import { Public } from '../auth/decorator/public.decorator';
 import { UserRole } from '../users/enums/user-role';
 import { AllowRoles } from '../auth/decorator/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @AllowRoles(UserRole.ADMIN)
 @UseGuards(RolesGuard)
@@ -29,8 +31,8 @@ export class AuthorsController {
   }
   @Public()
   @Get()
-  findAll() {
-    return this.authorsService.findAll();
+  findAll(@Query() { offset, limit }: PaginationDto) {
+    return this.authorsService.findAll(offset, limit);
   }
 
   @Public()

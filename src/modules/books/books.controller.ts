@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Res,
   UploadedFile,
   UseGuards,
@@ -22,6 +23,7 @@ import { UserRole } from '../users/enums/user-role';
 import { AllowRoles } from '../auth/decorator/roles.decorator';
 import { Public } from '../auth/decorator/public.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 const storage = {
   storage: diskStorage({
@@ -39,8 +41,8 @@ export class BooksController {
 
   @Public()
   @Get()
-  findAll() {
-    return this.booksService.findAll();
+  findAll(@Query() { offset, limit }: PaginationDto) {
+    return this.booksService.findAll(offset, limit);
   }
 
   @Public()

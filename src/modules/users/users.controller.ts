@@ -19,6 +19,7 @@ import { UserRole } from './enums/user-role';
 import { Public } from '../auth/decorator/public.decorator';
 import { UserRegisterFilter } from '../../common/filters/user-register.filter';
 import { UserIsUserOrHasRoleGuard } from '../auth/guards/user-is-userOrRole.guard';
+import { PaginationDto } from '../../common/dto/pagination.dto';
 
 @AllowRoles(UserRole.ADMIN)
 @UseGuards(UserIsUserOrHasRoleGuard)
@@ -43,8 +44,8 @@ export class UsersController {
   }
 
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  findAll({ offset, limit }: PaginationDto) {
+    return this.usersService.findAll(offset, limit);
   }
 
   @Get(':id')

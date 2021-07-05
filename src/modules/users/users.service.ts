@@ -53,8 +53,8 @@ export class UsersService {
     return this.userRepository.findOne({ id });
   }
 
-  findAll() {
-    return this.userRepository.find();
+  findAll(offset: number, limit: number) {
+    return this.userRepository.find({ skip: offset, take: limit });
   }
 
   async update(id: number, updateUser: UpdateUserDto) {

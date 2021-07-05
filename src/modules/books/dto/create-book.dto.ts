@@ -1,11 +1,14 @@
 import {
   IsDateString,
+  IsEnum,
   IsNotEmpty,
   IsOptional,
+  IsPositive,
   IsString,
   MinLength,
 } from 'class-validator';
 import { Author } from 'src/modules/authors/entities/author.entity';
+import { Category } from '../enums/category.enum';
 
 export class CreateBookDto {
   @IsNotEmpty()
@@ -13,11 +16,15 @@ export class CreateBookDto {
   @MinLength(3)
   title: string;
 
-  @IsString({ each: true })
-  category: string[];
+  @IsEnum(Category, { each: true })
+  categories: Category[];
 
   @IsOptional()
   author?: Author;
+
+  @IsOptional()
+  @IsPositive()
+  page?: number;
 
   @IsOptional()
   cover?: string;

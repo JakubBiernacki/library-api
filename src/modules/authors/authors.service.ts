@@ -22,8 +22,8 @@ export class AuthorsService {
     return this.authorRepository.save(newAuthor);
   }
 
-  findAll(): Promise<Author[]> {
-    return this.authorRepository.find();
+  findAll(offset: number, limit: number): Promise<Author[]> {
+    return this.authorRepository.find({ skip: offset, take: limit });
   }
 
   async findOne(id: number): Promise<Author> {
