@@ -6,5 +6,5 @@ export enum Category {
   SENSACJA = 'sensacja',
   THRILLER = 'thriller',
   FANTASY = 'fantasy',
-  SC = 'science fiction',
+  SC = 'scienceFiction',
 }

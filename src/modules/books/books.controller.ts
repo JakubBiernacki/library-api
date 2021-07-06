@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   Res,
   UploadedFile,
   UseGuards,
@@ -24,6 +25,8 @@ import { AllowRoles } from '../auth/decorator/roles.decorator';
 import { Public } from '../auth/decorator/public.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { PaginationDto } from '../../common/dto/pagination.dto';
+import { SearchBookDto } from './dto/search-book.dto';
+import { Request } from 'express';
 
 const storage = {
   storage: diskStorage({
@@ -48,6 +51,24 @@ export class BooksController {
       limit,
       route: '/books',
     });
+  }
+  @Public()
+  @Get('search')
+  search(
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+    @Query() search: SearchBookDto,
+    @Req() req: Request,
+  ) {
+    limit = limit > 100 ? 100 : limit;
+    return this.booksService.searchAndPaginate(
+      {
+        page,
+        limit,
+        route: req.url,
+      },
+      search,
+    );
   }
 
   @Public()

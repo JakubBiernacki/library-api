@@ -11,6 +11,7 @@ import {
   Pagination,
   IPaginationOptions,
 } from 'nestjs-typeorm-paginate';
+import { SearchBookDto } from './dto/search-book.dto';
 
 @Injectable()
 export class BooksService {
@@ -24,6 +25,29 @@ export class BooksService {
     return paginate<Book>(this.bookRepository, options, {
       relations: ['author'],
     });
+  }
+
+  searchAndPaginate(
+    options: IPaginationOptions,
+    search: SearchBookDto,
+  ): Promise<Pagination<Book>> {
+    const queryBuilder = this.bookRepository.createQueryBuilder('book');
+
+    Object.entries(search).forEach(([key, value]) => {
+      if (value instanceof Array) {
+        value.forEach((i) => {
+          queryBuilder.where(`:i = ANY(${key})`, { i });
+        });
+      } else {
+        queryBuilder.where(`${key} LIKE :value`, {
+          value: `%${value}%`,
+        });
+      }
+    });
+
+    queryBuilder.leftJoinAndSelect('book.author', 'author');
+
+    return paginate<Book>(queryBuilder, options);
   }
 
   findOne(id: number): Promise<Book> {
