@@ -41,8 +41,13 @@ export class BooksController {
 
   @Public()
   @Get()
-  findAll(@Query() { offset, limit }: PaginationDto) {
-    return this.booksService.findAll(offset, limit);
+  findAll(@Query() { page = 1, limit = 10 }: PaginationDto) {
+    limit = limit > 100 ? 100 : limit;
+    return this.booksService.paginateAll({
+      page,
+      limit,
+      route: '/books',
+    });
   }
 
   @Public()

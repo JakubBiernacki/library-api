@@ -11,6 +11,11 @@ import { User } from './entities/user.entity';
 import { AuthService } from '../auth/auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 import { UserRole } from './enums/user-role';
+import {
+  paginate,
+  Pagination,
+  IPaginationOptions,
+} from 'nestjs-typeorm-paginate';
 
 @Injectable()
 export class UsersService {
@@ -53,8 +58,8 @@ export class UsersService {
     return this.userRepository.findOne({ id });
   }
 
-  findAll(offset: number, limit: number) {
-    return this.userRepository.find({ skip: offset, take: limit });
+  async paginateAll(options: IPaginationOptions): Promise<Pagination<User>> {
+    return paginate<User>(this.userRepository, options);
   }
 
   async update(id: number, updateUser: UpdateUserDto) {

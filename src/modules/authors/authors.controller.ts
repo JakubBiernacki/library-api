@@ -31,8 +31,13 @@ export class AuthorsController {
   }
   @Public()
   @Get()
-  findAll(@Query() { offset, limit }: PaginationDto) {
-    return this.authorsService.findAll(offset, limit);
+  findAll(@Query() { page = 1, limit = 10 }: PaginationDto) {
+    limit = limit > 100 ? 100 : limit;
+    return this.authorsService.paginateAll({
+      page,
+      limit,
+      route: '/authors',
+    });
   }
 
   @Public()

@@ -9,6 +9,11 @@ import { Repository } from 'typeorm';
 import { CreateAuthorDto } from './dto/create-author.dto';
 import { UpdateAuthorDto } from './dto/update-author.dto';
 import { Author } from './entities/author.entity';
+import {
+  paginate,
+  Pagination,
+  IPaginationOptions,
+} from 'nestjs-typeorm-paginate';
 
 @Injectable()
 export class AuthorsService {
@@ -22,8 +27,8 @@ export class AuthorsService {
     return this.authorRepository.save(newAuthor);
   }
 
-  findAll(offset: number, limit: number): Promise<Author[]> {
-    return this.authorRepository.find({ skip: offset, take: limit });
+  async paginateAll(options: IPaginationOptions): Promise<Pagination<Author>> {
+    return paginate<Author>(this.authorRepository, options);
   }
 
   async findOne(id: number): Promise<Author> {

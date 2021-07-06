@@ -44,8 +44,13 @@ export class UsersController {
   }
 
   @Get()
-  findAll({ offset, limit }: PaginationDto) {
-    return this.usersService.findAll(offset, limit);
+  findAll({ page, limit }: PaginationDto) {
+    limit = limit > 100 ? 100 : limit;
+    return this.usersService.paginateAll({
+      page,
+      limit,
+      route: '/users',
+    });
   }
 
   @Get(':id')

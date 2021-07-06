@@ -6,6 +6,11 @@ import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { Book } from './entities/book.entity';
 import { existsSync } from 'fs';
+import {
+  paginate,
+  Pagination,
+  IPaginationOptions,
+} from 'nestjs-typeorm-paginate';
 
 @Injectable()
 export class BooksService {
@@ -15,11 +20,9 @@ export class BooksService {
     private readonly authorsService: AuthorsService,
   ) {}
 
-  findAll(offset: number, limit: number): Promise<Book[]> {
-    return this.bookRepository.find({
+  async paginateAll(options: IPaginationOptions): Promise<Pagination<Book>> {
+    return paginate<Book>(this.bookRepository, options, {
       relations: ['author'],
-      skip: offset,
-      take: limit,
     });
   }
 
