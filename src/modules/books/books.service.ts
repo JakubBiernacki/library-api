@@ -36,7 +36,7 @@ export class BooksService {
     Object.entries(search).forEach(([key, value]) => {
       if (value instanceof Array) {
         value.forEach((i) => {
-          queryBuilder.where(`:i = ANY(${key})`, { i });
+          queryBuilder.andWhere(`:i = ANY(${key})`, { i });
         });
       } else {
         queryBuilder.where(`${key} LIKE :value`, {

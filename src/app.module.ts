@@ -5,6 +5,7 @@ import { TypeOrmConfigService } from './config/typeorm.config';
 import { BooksModule } from './modules/books/books.module';
 import { AuthorsModule } from './modules/authors/authors.module';
 import { UsersModule } from './modules/users/users.module';
+import { BorrowModule } from './modules/borrow/borrow.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { UsersModule } from './modules/users/users.module';
     BooksModule,
     AuthorsModule,
     UsersModule,
+    BorrowModule,
   ],
 })
 export class AppModule {}

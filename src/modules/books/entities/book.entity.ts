@@ -5,10 +5,12 @@ import {
   BeforeRemove,
   Column,
   Entity,
+  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Category } from '../enums/category.enum';
+import { Borrow } from '../../borrow/entities/borrow.entity';
 
 @Entity()
 export class Book {
@@ -35,6 +37,9 @@ export class Book {
     onDelete: 'CASCADE',
   })
   author: Author;
+
+  @ManyToMany(() => Borrow, (borrow) => borrow.books)
+  borrows: Borrow[];
 
   @BeforeRemove()
   deleteCover() {

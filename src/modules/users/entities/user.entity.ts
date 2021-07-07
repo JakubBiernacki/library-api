@@ -3,9 +3,11 @@ import {
   Column,
   Entity,
   Index,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { UserRole } from '../enums/user-role';
+import { EmployeeRole, UserRole } from '../enums/user-role';
+import { Borrow } from '../../borrow/entities/borrow.entity';
 
 @Entity()
 export class User {
@@ -27,6 +29,21 @@ export class User {
 
   @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
   role: UserRole;
+
+  @OneToMany(() => Borrow, (borrow) => borrow.client)
+  loans: Borrow[];
+
+  //Employee
+
+  @OneToMany(() => Borrow, (borrow) => borrow.employee_borrow)
+  borrow: Borrow[];
+
+  @OneToMany(() => Borrow, (borrow) => borrow.employee_delivery)
+  delivery: Borrow[];
+
+  public isEmployee(): boolean {
+    return EmployeeRole.some((role) => role === this.role);
+  }
 
   @BeforeInsert()
   emailToLowerCase() {

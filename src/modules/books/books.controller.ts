@@ -55,8 +55,7 @@ export class BooksController {
   @Public()
   @Get('search')
   search(
-    @Query('page') page = 1,
-    @Query('limit') limit = 10,
+    @Query() { page = 1, limit = 10 }: PaginationDto,
     @Query() search: SearchBookDto,
     @Req() req: Request,
   ) {
