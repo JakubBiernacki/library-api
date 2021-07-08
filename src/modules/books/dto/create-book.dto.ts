@@ -5,6 +5,7 @@ import {
   IsOptional,
   IsPositive,
   IsString,
+  Min,
   MinLength,
 } from 'class-validator';
 import { Author } from 'src/modules/authors/entities/author.entity';
@@ -28,6 +29,10 @@ export class CreateBookDto {
 
   @IsOptional()
   cover?: string;
+
+  @IsOptional()
+  @Min(0)
+  quantity?: number;
 
   @IsDateString()
   @IsOptional()

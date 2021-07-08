@@ -85,8 +85,12 @@ export class BooksController {
 
   @AllowRoles(UserRole.EMPLOYEE)
   @Patch(':id')
-  update(@Param('id') id: number, @Body() updateBookDto: UpdateBookDto) {
-    return this.booksService.update(id, updateBookDto);
+  update(
+    @Param('id') id: number,
+    @Body() updateBookDto: UpdateBookDto,
+    @Query() { add = 0, del = 0 }: Record<string, number>,
+  ) {
+    return this.booksService.update(id, updateBookDto, add - del);
   }
 
   @AllowRoles(UserRole.EMPLOYEE)
@@ -94,6 +98,15 @@ export class BooksController {
   remove(@Param('id') id: number) {
     return this.booksService.remove(id);
   }
+
+  // @AllowRoles(UserRole.EMPLOYEE)
+  // @Patch(':id/quantity')
+  // changeBookQuantity(
+  //   @Param('id') id: number,
+  //   @Query() { add = 0, del = 0 }: Record<string, number>,
+  // ) {
+  //   return this.booksService.changeQuantity(id, add - del);
+  // }
 
   @AllowRoles(UserRole.EMPLOYEE)
   @Post('upload')

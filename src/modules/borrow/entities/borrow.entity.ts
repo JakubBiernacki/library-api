@@ -23,7 +23,7 @@ export class Borrow {
   @JoinTable()
   books: Book[];
 
-  @Column({ type: 'date' })
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   borrow_date: string;
 
   // many-to-one

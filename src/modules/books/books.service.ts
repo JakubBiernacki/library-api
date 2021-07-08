@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthorsService } from '../authors/authors.service';
 import { Repository } from 'typeorm';
@@ -61,9 +65,7 @@ export class BooksService {
   }
 
   async create(createBookDto: CreateBookDto): Promise<Book> {
-    const newBook = this.bookRepository.create({
-      ...createBookDto,
-    });
+    const newBook = await this.CreateIfNotExist(createBookDto);
 
     if (createBookDto?.author) {
       newBook.author = await this.authorsService.findOneOrCreate(
@@ -74,22 +76,44 @@ export class BooksService {
     return this.bookRepository.save(newBook);
   }
 
-  async update(id: number, updateBookDto: UpdateBookDto): Promise<any> {
-    const book = await this.findOne(id);
+  async update(
+    id: number,
+    updateBookDto: UpdateBookDto,
+    quantity: number,
+  ): Promise<any> {
+    const book = await this.bookRepository.preload({ id, ...updateBookDto });
+
+    this.changeQuantity(book, quantity);
 
     if (updateBookDto?.author) {
-      updateBookDto.author = await this.authorsService.findOneOrCreate(
+      book.author = await this.authorsService.findOneOrCreate(
         updateBookDto?.author,
       );
     }
 
-    return this.bookRepository.update(book, updateBookDto);
+    return this.bookRepository.save(book);
   }
 
   async remove(id: number): Promise<void> {
     const book = await this.findOne(id);
 
     await this.bookRepository.remove(book);
+  }
+
+  async CreateIfNotExist(bookDto: CreateBookDto): Promise<Book> {
+    const book = await this.bookRepository.findOne({ title: bookDto.title });
+
+    if (book) throw new ConflictException(`book "${book.title}" already exist`);
+
+    return this.bookRepository.create(bookDto);
+  }
+
+  changeQuantity(book: Book, quantity: number) {
+    try {
+      return book.addQuantity(quantity);
+    } catch (e) {
+      throw new ConflictException(e.message);
+    }
   }
 
   getCover(name: string) {
