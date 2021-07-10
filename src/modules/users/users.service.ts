@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -72,6 +73,12 @@ export class UsersService {
 
   updateRoleOfUser(id: number, role: UserRole) {
     return this.userRepository.update(id, { role });
+  }
+
+  findByUsernameOrFail(username: string): Promise<User> {
+    return this.userRepository.findOneOrFail({ username }).catch(() => {
+      throw new NotFoundException(`User ${username} not found`);
+    });
   }
 
   private async findByUsernameWithPassword(username: string) {

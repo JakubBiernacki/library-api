@@ -12,6 +12,7 @@ import {
 } from 'typeorm';
 import { Category } from '../enums/category.enum';
 import { Borrow } from '../../borrow/entities/borrow.entity';
+import { BadRequestException } from '@nestjs/common';
 
 @Entity()
 export class Book {
@@ -35,7 +36,7 @@ export class Book {
   pub_date: string;
 
   @Column({ default: 0 })
-  quantity: number;
+  copies: number;
 
   @ManyToOne(() => Author, (author) => author.books, {
     cascade: ['insert'],
@@ -46,10 +47,14 @@ export class Book {
   @ManyToMany(() => Borrow, (borrow) => borrow.books)
   borrows: Borrow[];
 
-  addQuantity(quantity = 1): void {
-    this.quantity = this.quantity + quantity || 1;
-    if (this.quantity < 0) {
-      throw new Error('the quantity cannot be less than 0');
+  addCopies(quantity = 1): void {
+    this.copies += quantity;
+    if (this.copies < 0) {
+      throw new BadRequestException(
+        `not so many copies (${-quantity}) of the book '${
+          this.title
+        }' available`,
+      );
     }
   }
 

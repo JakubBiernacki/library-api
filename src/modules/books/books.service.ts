@@ -76,14 +76,8 @@ export class BooksService {
     return this.bookRepository.save(newBook);
   }
 
-  async update(
-    id: number,
-    updateBookDto: UpdateBookDto,
-    quantity: number,
-  ): Promise<any> {
+  async update(id: number, updateBookDto: UpdateBookDto): Promise<any> {
     const book = await this.bookRepository.preload({ id, ...updateBookDto });
-
-    this.changeQuantity(book, quantity);
 
     if (updateBookDto?.author) {
       book.author = await this.authorsService.findOneOrCreate(
@@ -108,19 +102,17 @@ export class BooksService {
     return this.bookRepository.create(bookDto);
   }
 
-  changeQuantity(book: Book, quantity: number) {
-    try {
-      return book.addQuantity(quantity);
-    } catch (e) {
-      throw new ConflictException(e.message);
-    }
-  }
-
   getCover(name: string) {
     const path = process.cwd() + '/upload/cover_img/' + name;
     if (existsSync(path)) {
       return path;
     }
     throw new NotFoundException();
+  }
+
+  findByTitleOrFail(title: string): Promise<Book> {
+    return this.bookRepository.findOneOrFail({ title }).catch(() => {
+      throw new NotFoundException(`Book with title ${title} not found`);
+    });
   }
 }
