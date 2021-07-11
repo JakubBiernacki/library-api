@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateBorrowDto } from './dto/create-borrow.dto';
 import { UpdateBorrowDto } from './dto/update-borrow.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -32,9 +36,14 @@ export class BorrowService {
       newBorrow.books = await Promise.all(
         books.map((title) => this.booksService.findByTitleOrFail(title)),
       );
-      newBorrow.books.forEach((book) => book.addCopies(-1));
+      newBorrow.books.forEach((book) => {
+        if (!(book.availableCopiesCount() - 1 >= 0))
+          throw new BadRequestException(
+            `not so many copies of the book '${book.title}' available`,
+          );
+      });
 
-      newBorrow.borrow_date = borrow_date;
+      newBorrow.borrow_date = borrow_date ? new Date(borrow_date) : undefined;
       newBorrow.employee_borrow = employee;
 
       await queryRunner.manager.save(newBorrow.books);
@@ -56,15 +65,33 @@ export class BorrowService {
     });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} borrow`;
+  async findOne(id: string) {
+    return this.borrowRepository
+      .findOneOrFail(id, {
+        relations: ['client', 'books', 'employee_borrow'],
+      })
+      .catch(() => {
+        throw new NotFoundException();
+      });
   }
 
-  update(id: number, updateBorrowDto: UpdateBorrowDto) {
+  update(id: string, updateBorrowDto: UpdateBorrowDto) {
     return `This action updates a #${id} borrow`;
   }
 
   remove(id: number) {
     return `This action removes a #${id} borrow`;
+  }
+
+  async close(id: string, user: User) {
+    const borrow = await this.findOne(id);
+
+    if (borrow.closed())
+      throw new BadRequestException('borrow is already closed');
+
+    return this.borrowRepository.update(id, {
+      delivery_date: new Date(),
+      employee_delivery: user,
+    });
   }
 }

@@ -72,12 +72,17 @@ export class BooksController {
 
   @Public()
   @Get(':id')
-  async findOne(@Param('id') id: number) {
+  findOne(@Param('id') id: number) {
     return this.booksService.findOne(id);
   }
 
   @AllowRoles(UserRole.EMPLOYEE)
-  @UseGuards(RolesGuard)
+  @Get(':id/borrows')
+  findOneAndGetBorrows(@Param('id') id: number) {
+    return this.booksService.findOneAndGetBorrows(id);
+  }
+
+  @AllowRoles(UserRole.EMPLOYEE)
   @Post()
   create(@Body() createBookDto: CreateBookDto) {
     return this.booksService.create(createBookDto);

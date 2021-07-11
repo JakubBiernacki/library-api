@@ -111,8 +111,18 @@ export class BooksService {
   }
 
   findByTitleOrFail(title: string): Promise<Book> {
-    return this.bookRepository.findOneOrFail({ title }).catch(() => {
-      throw new NotFoundException(`Book with title ${title} not found`);
+    return this.bookRepository
+      .findOneOrFail({ title }, { relations: ['borrows'] })
+      .catch(() => {
+        throw new NotFoundException(`Book with title ${title} not found`);
+      });
+  }
+
+  async findOneAndGetBorrows(id: number) {
+    const book = await this.bookRepository.findOne(id, {
+      relations: ['borrows'],
     });
+
+    return book.borrows.filter((borrow) => !borrow.closed());
   }
 }

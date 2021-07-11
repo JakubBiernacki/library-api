@@ -12,7 +12,6 @@ import {
 } from 'typeorm';
 import { Category } from '../enums/category.enum';
 import { Borrow } from '../../borrow/entities/borrow.entity';
-import { BadRequestException } from '@nestjs/common';
 
 @Entity()
 export class Book {
@@ -47,15 +46,9 @@ export class Book {
   @ManyToMany(() => Borrow, (borrow) => borrow.books)
   borrows: Borrow[];
 
-  addCopies(quantity = 1): void {
-    this.copies += quantity;
-    if (this.copies < 0) {
-      throw new BadRequestException(
-        `not so many copies (${-quantity}) of the book '${
-          this.title
-        }' available`,
-      );
-    }
+  availableCopiesCount(): number {
+    const borrows = this.borrows.filter((borrow) => !borrow.delivery_date);
+    return this.copies - borrows.length;
   }
 
   @BeforeRemove()

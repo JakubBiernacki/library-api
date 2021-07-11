@@ -19,21 +19,25 @@ export class Borrow {
   client: User;
 
   // many-to-many
-  @ManyToMany(() => Book)
+  @ManyToMany(() => Book, (book) => book.borrows)
   @JoinTable()
   books: Book[];
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  borrow_date: string;
+  borrow_date: Date;
 
   // many-to-one
   @ManyToOne(() => User, (user) => user.borrow)
   employee_borrow: User;
 
-  @Column({ type: 'date', nullable: true })
-  delivery_date: string;
+  @Column({ type: 'timestamp', nullable: true })
+  delivery_date: Date;
 
   // many-to-one
   @ManyToOne(() => User, (user) => user.delivery)
   employee_delivery: User;
+
+  closed(): boolean {
+    return !!this.delivery_date;
+  }
 }
