@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   UseGuards,
-  Req,
 } from '@nestjs/common';
 import { BorrowService } from './borrow.service';
 import { CreateBorrowDto } from './dto/create-borrow.dto';
@@ -17,6 +16,8 @@ import { UserRole } from '../users/enums/user-role';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { IsOwnerGuard } from './guards/is-owner.guard';
 import { ClosedGuard } from './guards/closed.guard';
+import { User } from '../users/entities/user.entity';
+import { getUser } from '../auth/decorator/user.decorator';
 
 @AllowRoles(UserRole.ADMIN)
 @UseGuards(RolesGuard)
@@ -24,10 +25,14 @@ import { ClosedGuard } from './guards/closed.guard';
 export class BorrowController {
   constructor(private readonly borrowService: BorrowService) {}
 
+  // TODO: check why 'validateCustomDecorators' doesn't work
   @AllowRoles(UserRole.EMPLOYEE)
   @Post()
-  create(@Req() { user }, @Body() createBorrowDto: CreateBorrowDto) {
-    return this.borrowService.create(createBorrowDto, user);
+  create(
+    @getUser('id') userId: number,
+    @Body() createBorrowDto: CreateBorrowDto,
+  ) {
+    return this.borrowService.create(createBorrowDto, userId);
   }
 
   @AllowRoles(UserRole.EMPLOYEE)
@@ -51,7 +56,7 @@ export class BorrowController {
 
   @AllowRoles(UserRole.EMPLOYEE)
   @Patch(':id/close')
-  close(@Req() { user }, @Param('id') id: string) {
+  close(@getUser() user: User, @Param('id') id: string) {
     return this.borrowService.close(id, user);
   }
 

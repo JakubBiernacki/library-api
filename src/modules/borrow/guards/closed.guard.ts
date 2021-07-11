@@ -19,7 +19,7 @@ export class ClosedGuard implements CanActivate {
 
     const borrow = await this.borrowService.findOne(id);
 
-    if (!borrow.closed() || role !== UserRole.ADMIN) {
+    if (borrow.closed() && role !== UserRole.ADMIN) {
       throw new ForbiddenException('Only admin can modify a closed borrow');
     }
 

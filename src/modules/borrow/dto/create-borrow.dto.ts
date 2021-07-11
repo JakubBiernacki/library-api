@@ -4,6 +4,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
+import { User } from '../../users/entities/user.entity';
 
 export class CreateBorrowDto {
   @IsNotEmpty()
@@ -17,4 +18,6 @@ export class CreateBorrowDto {
   @IsOptional()
   @IsDateString()
   borrow_date: string;
+
+  employee?: User;
 }

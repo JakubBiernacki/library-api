@@ -12,6 +12,7 @@ import {
 } from 'typeorm';
 import { Category } from '../enums/category.enum';
 import { Borrow } from '../../borrow/entities/borrow.entity';
+import { BadRequestException } from '@nestjs/common';
 
 @Entity()
 export class Book {
@@ -49,6 +50,13 @@ export class Book {
   availableCopiesCount(): number {
     const borrows = this.borrows.filter((borrow) => !borrow.delivery_date);
     return this.copies - borrows.length;
+  }
+
+  borrowOne(quantity = 1): void {
+    if (this.availableCopiesCount() - quantity < 0)
+      throw new BadRequestException(
+        `not so many copies of the book '${this.title}' available`,
+      );
   }
 
   @BeforeRemove()

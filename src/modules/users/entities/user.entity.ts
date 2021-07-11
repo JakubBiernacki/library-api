@@ -41,7 +41,7 @@ export class User {
   @OneToMany(() => Borrow, (borrow) => borrow.employee_delivery)
   delivery: Borrow[];
 
-  public isEmployee(): boolean {
+  isEmployee(): boolean {
     return EmployeeRole.some((role) => role === this.role);
   }
 

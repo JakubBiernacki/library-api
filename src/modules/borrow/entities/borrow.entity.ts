@@ -27,7 +27,7 @@ export class Borrow {
   borrow_date: Date;
 
   // many-to-one
-  @ManyToOne(() => User, (user) => user.borrow)
+  @ManyToOne(() => User, (user) => user.borrow, { nullable: false })
   employee_borrow: User;
 
   @Column({ type: 'timestamp', nullable: true })

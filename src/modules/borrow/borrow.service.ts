@@ -21,8 +21,8 @@ export class BorrowService {
     private readonly booksService: BooksService,
     private readonly connection: Connection,
   ) {}
-  async create(createBorrowDto: CreateBorrowDto, employee: User) {
-    const { client, books, borrow_date } = createBorrowDto;
+  async create(createBorrowDto: CreateBorrowDto, userId: number) {
+    createBorrowDto.employee = await this.usersService.findOne(userId);
     const queryRunner = this.connection.createQueryRunner();
 
     await queryRunner.connect();
@@ -31,22 +31,8 @@ export class BorrowService {
     try {
       const newBorrow = new Borrow();
 
-      newBorrow.client = await this.usersService.findByUsernameOrFail(client);
+      await this.setBorrow(newBorrow, createBorrowDto);
 
-      newBorrow.books = await Promise.all(
-        books.map((title) => this.booksService.findByTitleOrFail(title)),
-      );
-      newBorrow.books.forEach((book) => {
-        if (!(book.availableCopiesCount() - 1 >= 0))
-          throw new BadRequestException(
-            `not so many copies of the book '${book.title}' available`,
-          );
-      });
-
-      newBorrow.borrow_date = borrow_date ? new Date(borrow_date) : undefined;
-      newBorrow.employee_borrow = employee;
-
-      await queryRunner.manager.save(newBorrow.books);
       await queryRunner.manager.save(newBorrow);
 
       await queryRunner.commitTransaction();
@@ -75,12 +61,35 @@ export class BorrowService {
       });
   }
 
-  update(id: string, updateBorrowDto: UpdateBorrowDto) {
-    return `This action updates a #${id} borrow`;
+  async update(id: string, updateBorrowDto: UpdateBorrowDto) {
+    const { employee_borrow } = updateBorrowDto;
+    const queryRunner = this.connection.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const borrow = await this.findOne(id);
+      if (employee_borrow)
+        updateBorrowDto.employee = await this.usersService.findByUsernameOrFail(
+          employee_borrow,
+        );
+
+      await this.setBorrow(borrow, updateBorrowDto);
+
+      const updated = await queryRunner.manager.save(borrow);
+      await queryRunner.commitTransaction();
+      return updated;
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   remove(id: number) {
-    return `This action removes a #${id} borrow`;
+    return this.borrowRepository.delete(id);
   }
 
   async close(id: string, user: User) {
@@ -93,5 +102,34 @@ export class BorrowService {
       delivery_date: new Date(),
       employee_delivery: user,
     });
+  }
+
+  private async setBorrow(
+    borrow: Borrow,
+    dto: CreateBorrowDto | UpdateBorrowDto,
+  ) {
+    if (dto.client) {
+      borrow.client = await this.usersService.findByUsernameOrFail(dto.client);
+    }
+
+    if (dto.books) {
+      borrow.books = await Promise.all(
+        dto.books.map((title) => this.booksService.findByTitleOrFail(title)),
+      );
+      borrow.books.forEach((book) => book.borrowOne());
+    }
+
+    if (dto.borrow_date) {
+      borrow.borrow_date = new Date(dto.borrow_date);
+    }
+
+    console.log('em: ', dto.employee);
+
+    if (dto.employee?.isEmployee()) {
+      borrow.employee_borrow = dto.employee;
+    } else if (dto?.employee)
+      throw new BadRequestException(
+        `User: ${dto.employee.username} is not a employee`,
+      );
   }
 }
