@@ -17,7 +17,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { IsOwnerGuard } from './guards/is-owner.guard';
 import { ClosedGuard } from './guards/closed.guard';
 import { User } from '../users/entities/user.entity';
-import { getUser } from '../auth/decorator/user.decorator';
+import { GetUser } from '../auth/decorator/user.decorator';
 
 @AllowRoles(UserRole.ADMIN)
 @UseGuards(RolesGuard)
@@ -29,7 +29,7 @@ export class BorrowController {
   @AllowRoles(UserRole.EMPLOYEE)
   @Post()
   create(
-    @getUser('id') userId: number,
+    @GetUser('id') userId: number,
     @Body() createBorrowDto: CreateBorrowDto,
   ) {
     return this.borrowService.create(createBorrowDto, userId);
@@ -56,7 +56,7 @@ export class BorrowController {
 
   @AllowRoles(UserRole.EMPLOYEE)
   @Patch(':id/close')
-  close(@getUser() user: User, @Param('id') id: string) {
+  close(@GetUser() user: User, @Param('id') id: string) {
     return this.borrowService.close(id, user);
   }
 

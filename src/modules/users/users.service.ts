@@ -2,7 +2,6 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -10,7 +9,6 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { AuthService } from '../auth/auth.service';
-import { LoginUserDto } from './dto/login-user.dto';
 import { UserRole } from './enums/user-role';
 import {
   paginate,
@@ -23,24 +21,8 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    private readonly authService: AuthService,
+    public readonly authService: AuthService,
   ) {}
-
-  async login(loginUser: LoginUserDto) {
-    const user = await this.findByUsernameWithPassword(loginUser.username);
-
-    if (user instanceof User) {
-      const compare = await this.authService.comparePasswords(
-        loginUser.password,
-        user.password,
-      );
-      delete user.password;
-
-      if (compare) return this.authService.generateJWT(user);
-    }
-
-    throw new UnauthorizedException('Login failed');
-  }
 
   async create(newUser: CreateUserDto): Promise<Record<string, string>> {
     await this.userExist(newUser);
@@ -81,7 +63,7 @@ export class UsersService {
     });
   }
 
-  private async findByUsernameWithPassword(username: string) {
+  async findByUsernameWithPassword(username: string) {
     return this.userRepository
       .createQueryBuilder('user')
       .where('user.username = :username', { username })

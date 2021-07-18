@@ -7,19 +7,23 @@ import {
   Param,
   Patch,
   Post,
+  Res,
   UseFilters,
   UseGuards,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
-import { LoginUserDto } from './dto/login-user.dto';
 import { AllowRoles } from '../auth/decorator/roles.decorator';
 import { UserRole } from './enums/user-role';
 import { Public } from '../auth/decorator/public.decorator';
 import { UserRegisterFilter } from '../../common/filters/user-register.filter';
 import { UserIsUserOrHasRoleGuard } from '../auth/guards/user-is-userOrRole.guard';
 import { PaginationDto } from '../../common/dto/pagination.dto';
+import { LocalAuthGuard } from '../auth/guards/local-auth.guard';
+import { GetUser } from '../auth/decorator/user.decorator';
+import { Response } from 'express';
+import { Cookie } from '../../common/constants';
 
 @AllowRoles(UserRole.ADMIN)
 @UseGuards(UserIsUserOrHasRoleGuard)
@@ -29,11 +33,23 @@ export class UsersController {
 
   @Public()
   @HttpCode(200)
+  @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Body() loginUser: LoginUserDto) {
-    return {
-      access_token: await this.usersService.login(loginUser),
-    };
+  async login(@Res({ passthrough: true }) response: Response, @GetUser() user) {
+    const jwtToken = await this.usersService.authService.generateJWT(user);
+
+    response.cookie(Cookie.JWT, jwtToken, {
+      httpOnly: true,
+    });
+
+    return user;
+  }
+
+  @AllowRoles(UserRole.USER, UserRole.EMPLOYEE)
+  @HttpCode(200)
+  @Post('logout')
+  async logout(@Res({ passthrough: true }) response: Response) {
+    response.cookie(Cookie.JWT, { maxAge: 0 });
   }
 
   @Public()
