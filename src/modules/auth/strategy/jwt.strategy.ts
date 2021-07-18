@@ -2,7 +2,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Cookie } from '../../../common/constants';
+import { Cookie } from '../../../common/enum/cookie.enum';
 import { Request } from 'express';
 import { UsersService } from '../../users/users.service';
 

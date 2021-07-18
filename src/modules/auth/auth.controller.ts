@@ -3,7 +3,7 @@ import { Public } from './decorator/public.decorator';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { Response } from 'express';
 import { GetUser } from './decorator/user.decorator';
-import { Cookie } from '../../common/constants';
+import { Cookie } from '../../common/enum/cookie.enum';
 import { AuthService } from './auth.service';
 
 @Controller('auth')
