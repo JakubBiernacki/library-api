@@ -13,16 +13,16 @@ export class RolesGuard extends BaseGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean | Promise<boolean> {
     if (super.canActivate(context)) return true;
 
-    const requiredRoles = this.reflector.getAllAndMerge<UserRole[]>(ROLES_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const requiredRoles = this.reflector.getAllAndMerge<UserRole[] | boolean[]>(
+      ROLES_KEY,
+      [context.getHandler(), context.getClass()],
+    );
 
     if (!requiredRoles.toString()) {
       return true;
     }
 
     const { user } = context.switchToHttp().getRequest();
-    return requiredRoles.some((role) => user.role === role);
+    return requiredRoles.some((role) => user.role === role || role === true);
   }
 }

@@ -3,11 +3,10 @@ import {
   Controller,
   Delete,
   Get,
-  HttpCode,
   Param,
   Patch,
   Post,
-  Res,
+  Req,
   UseFilters,
   UseGuards,
 } from '@nestjs/common';
@@ -20,10 +19,7 @@ import { Public } from '../auth/decorator/public.decorator';
 import { UserRegisterFilter } from '../../common/filters/user-register.filter';
 import { UserIsUserOrHasRoleGuard } from '../auth/guards/user-is-userOrRole.guard';
 import { PaginationDto } from '../../common/dto/pagination.dto';
-import { LocalAuthGuard } from '../auth/guards/local-auth.guard';
 import { GetUser } from '../auth/decorator/user.decorator';
-import { Response } from 'express';
-import { Cookie } from '../../common/constants';
 
 @AllowRoles(UserRole.ADMIN)
 @UseGuards(UserIsUserOrHasRoleGuard)
@@ -32,31 +28,18 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Public()
-  @HttpCode(200)
-  @UseGuards(LocalAuthGuard)
-  @Post('login')
-  async login(@Res({ passthrough: true }) response: Response, @GetUser() user) {
-    const jwtToken = await this.usersService.authService.generateJWT(user);
-
-    response.cookie(Cookie.JWT, jwtToken, {
-      httpOnly: true,
-    });
-
-    return user;
-  }
-
-  @AllowRoles(UserRole.USER, UserRole.EMPLOYEE)
-  @HttpCode(200)
-  @Post('logout')
-  async logout(@Res({ passthrough: true }) response: Response) {
-    response.cookie(Cookie.JWT, { maxAge: 0 });
-  }
-
-  @Public()
   @UseFilters(UserRegisterFilter)
   @Post('register')
   create(@Body() newUser: CreateUserDto) {
     return this.usersService.create(newUser);
+  }
+
+  @AllowRoles(true)
+  @Get('me')
+  me(@Req() req, @GetUser() user) {
+    console.log(req.user);
+    console.log(user);
+    return user;
   }
 
   @Get()
