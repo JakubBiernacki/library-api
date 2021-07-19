@@ -1,4 +1,12 @@
-import { Controller, HttpCode, Post, Res, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  Post,
+  Query,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { Public } from './decorator/public.decorator';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { Response } from 'express';
@@ -9,6 +17,13 @@ import { AuthService } from './auth.service';
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
+
+  @Public()
+  @Get('verify')
+  async verifyUser(@Res() res, @Query() { id, code }) {
+    await this.authService.verifyUser(+id, code);
+    res.send('your email has been verified');
+  }
 
   @Public()
   @HttpCode(200)

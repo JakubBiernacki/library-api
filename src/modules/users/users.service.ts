@@ -34,6 +34,11 @@ export class UsersService {
       password: hashedPassword,
     });
     await this.userRepository.save(user);
+
+    const token = await this.authService.createAuthToken(user);
+
+    this.authService.sendConfirmEmail(user, token.code);
+
     return { message: `User ${user.username} has been created` };
   }
 
@@ -81,5 +86,10 @@ export class UsersService {
         email: existEmail?.email,
       });
     }
+  }
+
+  async verify(user: User) {
+    user.emailVerified = true;
+    return this.userRepository.save(user);
   }
 }

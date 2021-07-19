@@ -9,6 +9,8 @@ import { APP_GUARD } from '@nestjs/core';
 import { LocalStrategy } from './strategy/local.strategy';
 import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthToken } from './entities/auth-token.entity';
 
 @Module({
   imports: [
@@ -22,6 +24,7 @@ import { AuthController } from './auth.controller';
         signOptions: { expiresIn: `${configService.get('JWT_EXPIRES')}s` },
       }),
     }),
+    TypeOrmModule.forFeature([AuthToken]),
   ],
   providers: [
     AuthService,
