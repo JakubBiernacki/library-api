@@ -28,11 +28,8 @@ export class BorrowController {
   // TODO: check why 'validateCustomDecorators' doesn't work
   @AllowRoles(UserRole.EMPLOYEE)
   @Post()
-  create(
-    @GetUser('id') userId: number,
-    @Body() createBorrowDto: CreateBorrowDto,
-  ) {
-    return this.borrowService.create(createBorrowDto, userId);
+  create(@GetUser() user: User, @Body() createBorrowDto: CreateBorrowDto) {
+    return this.borrowService.create(createBorrowDto, user);
   }
 
   @AllowRoles(UserRole.EMPLOYEE)

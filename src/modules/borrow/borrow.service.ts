@@ -21,8 +21,8 @@ export class BorrowService {
     private readonly booksService: BooksService,
     private readonly connection: Connection,
   ) {}
-  async create(createBorrowDto: CreateBorrowDto, userId: number) {
-    createBorrowDto.employee = await this.usersService.findOne(userId);
+  async create(createBorrowDto: CreateBorrowDto, user: User) {
+    createBorrowDto.employee = user;
     const queryRunner = this.connection.createQueryRunner();
 
     await queryRunner.connect();
@@ -122,8 +122,6 @@ export class BorrowService {
     if (dto.borrow_date) {
       borrow.borrow_date = new Date(dto.borrow_date);
     }
-
-    console.log('em: ', dto.employee);
 
     if (dto.employee?.isEmployee()) {
       borrow.employee_borrow = dto.employee;

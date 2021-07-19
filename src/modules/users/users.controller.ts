@@ -37,8 +37,6 @@ export class UsersController {
   @AllowRoles(true)
   @Get('me')
   me(@Req() req, @GetUser() user) {
-    console.log(req.user);
-    console.log(user);
     return user;
   }
 
